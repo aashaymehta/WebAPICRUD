@@ -31,7 +31,25 @@ namespace WebApiCRUDDemo.Controllers
         //    }
         //}
 
-        public HttpResponseMessage GetEmployees()
+        //public HttpResponseMessage GetEmployees()
+        //{
+        //    try
+        //    {
+        //        using (var empDbContext = new EmployeeDB())
+        //        {
+        //            var employeeList = empDbContext.emps.ToList();
+        //            List<EmployeeModel> employees = AdaptToEmployeeModel(employeeList);
+        //            return Request.CreateResponse(HttpStatusCode.OK, employees);
+        //        }
+        //    }
+        //    catch (Exception e)
+        //    {
+        //        Console.WriteLine(e);
+        //        return Request.CreateErrorResponse(HttpStatusCode.BadRequest, e);
+        //    }
+        //}
+
+        public IHttpActionResult GetEmployees()
         {
             try
             {
@@ -39,13 +57,14 @@ namespace WebApiCRUDDemo.Controllers
                 {
                     var employeeList = empDbContext.emps.ToList();
                     List<EmployeeModel> employees = AdaptToEmployeeModel(employeeList);
-                    return Request.CreateResponse(HttpStatusCode.OK, employees);
+                    return Ok(employees);
                 }
             }
             catch (Exception e)
             {
                 Console.WriteLine(e);
-                return Request.CreateErrorResponse(HttpStatusCode.BadRequest, e);
+                // return BadRequest();
+                return Content(HttpStatusCode.BadRequest, e);
             }
         }
 
@@ -72,7 +91,30 @@ namespace WebApiCRUDDemo.Controllers
         //    }
         //}
 
-        public HttpResponseMessage GetEmployee(int id)
+        //public HttpResponseMessage GetEmployee(int id)
+        //{
+        //    try
+        //    {
+        //        using (var empDbContext = new EmployeeDB())
+        //        {
+        //            var employeeList = empDbContext.emps.ToList();
+        //            List<EmployeeModel> employees = AdaptToEmployeeModel(employeeList);
+        //            var employee = employees?.Find(x => x.EmpId == id);
+        //            if (employee != null)
+        //            {
+        //                return Request.CreateResponse(HttpStatusCode.OK, employee);
+        //            }
+        //            return Request.CreateErrorResponse(HttpStatusCode.NotFound, "Employee with id = " + id + " not found"); ;
+        //        }
+        //    }
+        //    catch (Exception e)
+        //    {
+        //        Console.WriteLine(e);
+        //        return Request.CreateErrorResponse(HttpStatusCode.BadRequest, e);
+        //    }
+        //}
+
+        public IHttpActionResult GetEmployee(int id)
         {
             try
             {
@@ -83,15 +125,18 @@ namespace WebApiCRUDDemo.Controllers
                     var employee = employees?.Find(x => x.EmpId == id);
                     if (employee != null)
                     {
-                        return Request.CreateResponse(HttpStatusCode.OK, employee);
+                        return Ok(employee);
                     }
-                    return Request.CreateErrorResponse(HttpStatusCode.NotFound, "Employee with id = " + id + " not found"); ;
+                    // return NotFound();
+                    // For giving custom message use the below return
+                    return Content(HttpStatusCode.NotFound, "Employee with id = " + id + " not found");
                 }
             }
             catch (Exception e)
             {
                 Console.WriteLine(e);
-                return Request.CreateErrorResponse(HttpStatusCode.BadRequest, e);
+                // return BadRequest();
+                return Content(HttpStatusCode.BadRequest, e);
             }
         }
 
@@ -114,7 +159,28 @@ namespace WebApiCRUDDemo.Controllers
         //    }
         //}
 
-        public HttpResponseMessage Post([FromBody]EmployeeModel employee)
+        //public HttpResponseMessage Post([FromBody]EmployeeModel employee)
+        //{
+        //    try
+        //    {
+        //        using (var empDbContext = new EmployeeDB())
+        //        {
+        //            emp emp = AdaptToDBEntity(employee);
+        //            empDbContext.emps.Add(emp);
+        //            empDbContext.SaveChanges();
+        //            var message = Request.CreateResponse(HttpStatusCode.Created, emp);
+        //            message.Headers.Location = new Uri(Request.RequestUri + emp.empno.ToString());
+        //            return message;
+        //        }
+        //    }
+        //    catch (Exception e)
+        //    {
+        //        Console.WriteLine(e);
+        //        return Request.CreateErrorResponse(HttpStatusCode.BadRequest, e);
+        //    }
+        //}
+
+        public IHttpActionResult Post([FromBody]EmployeeModel employee)
         {
             try
             {
@@ -123,15 +189,14 @@ namespace WebApiCRUDDemo.Controllers
                     emp emp = AdaptToDBEntity(employee);
                     empDbContext.emps.Add(emp);
                     empDbContext.SaveChanges();
-                    var message = Request.CreateResponse(HttpStatusCode.Created, emp);
-                    message.Headers.Location = new Uri(Request.RequestUri + emp.empno.ToString());
-                    return message;
+                    var uri = new Uri(Request.RequestUri + emp.empno.ToString());
+                    return Created(uri, emp);
                 }
             }
             catch (Exception e)
             {
                 Console.WriteLine(e);
-                return Request.CreateErrorResponse(HttpStatusCode.BadRequest, e);
+                return Content(HttpStatusCode.BadRequest, e);
             }
         }
 
@@ -162,7 +227,34 @@ namespace WebApiCRUDDemo.Controllers
         //    }
         //}
 
-        public HttpResponseMessage Put(int id, [FromBody]EmployeeModel employee)
+        //public HttpResponseMessage Put(int id, [FromBody]EmployeeModel employee)
+        //{
+        //    try
+        //    {
+        //        using (var empDbContext = new EmployeeDB())
+        //        {
+        //            var employeeList = empDbContext.emps.ToList();
+        //            var employeeToBeUpdated = employeeList.Find(x => x.empno == id);
+
+        //            emp emp = AdaptToDBEntity(employee);
+        //            employeeToBeUpdated.ename = emp.ename;
+        //            employeeToBeUpdated.hiredate = emp.hiredate;
+        //            employeeToBeUpdated.job = emp.job;
+        //            employeeToBeUpdated.sal = emp.sal;
+
+        //            empDbContext.emps.AddOrUpdate(employeeToBeUpdated);
+        //            empDbContext.SaveChanges();
+        //            return Request.CreateResponse(HttpStatusCode.Accepted);
+        //        }
+        //    }
+        //    catch (Exception e)
+        //    {
+        //        Console.WriteLine(e);
+        //        return Request.CreateErrorResponse(HttpStatusCode.BadRequest, e);
+        //    }
+        //}
+
+            public IHttpActionResult Put(int id, [FromBody]EmployeeModel employee)
         {
             try
             {
@@ -179,13 +271,13 @@ namespace WebApiCRUDDemo.Controllers
 
                     empDbContext.emps.AddOrUpdate(employeeToBeUpdated);
                     empDbContext.SaveChanges();
-                    return Request.CreateResponse(HttpStatusCode.Accepted);
+                    return Ok();
                 }
             }
             catch (Exception e)
             {
                 Console.WriteLine(e);
-                return Request.CreateErrorResponse(HttpStatusCode.BadRequest, e);
+                return Content(HttpStatusCode.BadRequest, e);
             }
         }
 
@@ -209,7 +301,27 @@ namespace WebApiCRUDDemo.Controllers
         //    }
         //}
 
-        public HttpResponseMessage Delete(int id)
+        //public HttpResponseMessage Delete(int id)
+        //{
+        //    try
+        //    {
+        //        using (var empDbContext = new EmployeeDB())
+        //        {
+        //            var employeeList = empDbContext.emps.ToList();
+        //            var emp = employeeList.Find(x => x.empno == id);
+        //            empDbContext.emps.Remove(emp);
+        //            empDbContext.SaveChanges();
+        //            return Request.CreateResponse(HttpStatusCode.OK);
+        //        }
+        //    }
+        //    catch (Exception e)
+        //    {
+        //        Console.WriteLine(e);
+        //        return Request.CreateErrorResponse(HttpStatusCode.BadRequest, e);
+        //    }
+        //}
+
+        public IHttpActionResult Delete(int id)
         {
             try
             {
@@ -219,13 +331,13 @@ namespace WebApiCRUDDemo.Controllers
                     var emp = employeeList.Find(x => x.empno == id);
                     empDbContext.emps.Remove(emp);
                     empDbContext.SaveChanges();
-                    return Request.CreateResponse(HttpStatusCode.OK);
+                    return Ok();
                 }
             }
             catch (Exception e)
             {
                 Console.WriteLine(e);
-                return Request.CreateErrorResponse(HttpStatusCode.BadRequest, e);
+                return Content(HttpStatusCode.BadRequest, e);
             }
         }
 
